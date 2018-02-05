@@ -33,14 +33,14 @@ growpart:
 
 # Update our packages on first boot, saves us some time
 package_update: true
-package_upgrade: true
-package_reboot_if_required: true
+package_upgrade: false
+package_reboot_if_required: false
 
 # Install any additional packages you need here
-# I add ntp because.. without it, rpi is useless in keeping track of time.
 packages:
   - ntp
   - vim
+  - tzdata
 
 # Set the locale of the system
 locale: "en_US.UTF-8"
@@ -68,14 +68,14 @@ runcmd:
   - [ systemctl, restart, docker ]
   
   # Run portainer, so we can see our logs and control stuff from a UI
+  - [ docker, volume, create, portainer_data ]
   - [
       docker, run, 
-      "--detach", 
-      "--restart unless-stopped",
-      "--name", "portainer", 
-      "--publish", "9000:9000", 
-      "-v", "portainer_data:/data portainer/portainer", 
-      "-v", "/var/run/docker.sock:/var/run/docker.sock", 
+      "--restart", "unless-stopped", 
+      "--name", "portainer",
+      "-p", "9000:9000", 
+      "-v", "/var/run/docker.sock:/var/run/docker.sock",
+      "-v", "portainer_data:/data",
       "portainer/portainer", "-H", "unix:///var/run/docker.sock", "--no-auth"
     ]
 
